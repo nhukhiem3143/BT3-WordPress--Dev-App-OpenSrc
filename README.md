@@ -200,6 +200,10 @@ docker compose logs -f wordpress
    - Thêm **audio** (nếu có)
 
 6. Nhấp **Publish**
+<img width="1880" height="974" alt="image" src="https://github.com/user-attachments/assets/6f1e2c35-67b3-48d4-bb49-c7f14cc8bab1" />
+<img width="1895" height="987" alt="image" src="https://github.com/user-attachments/assets/2d380bab-b3f6-479b-93ab-189dac4a0e70" />
+<img width="1868" height="971" alt="image" src="https://github.com/user-attachments/assets/b94d4163-9902-41fe-af4c-47592f2159f0" />
+
 
 ### **Bài Viết #2: Giới Thiệu Ngành Học**
 
@@ -214,108 +218,180 @@ docker compose logs -f wordpress
 
 4. Nhấp **Publish**
 
+<img width="1890" height="981" alt="image" src="https://github.com/user-attachments/assets/750d71bc-9f58-48b9-8e51-ca6e3e731f84" />
+<img width="1890" height="966" alt="image" src="https://github.com/user-attachments/assets/c30ca42d-b40f-420f-8633-d44594e184ea" />
+<img width="1881" height="965" alt="image" src="https://github.com/user-attachments/assets/0c1f767c-7442-481d-9c9b-61d8ca10e5a2" />
+<img width="1875" height="765" alt="image" src="https://github.com/user-attachments/assets/18ca986e-9b18-48e9-88f8-47a92f156387" />
+<img width="1872" height="989" alt="image" src="https://github.com/user-attachments/assets/f4b2242b-b67a-4777-8edb-cb5b8017e42c" />
+<img width="1881" height="963" alt="image" src="https://github.com/user-attachments/assets/14026a9a-660d-4f46-af6b-dc340e2717c4" />
+
 ✅ **Xong!** Cả 2 bài viết đã online
 
 ---
 
 ## 🌍 BƯỚC 8: Public Website Với Cloudflare Tunnel
 
-### **8.1: Cài Đặt Cloudflare CLI (cloudflared)**
+# Public Website Với Cloudflare Tunnel
+
+Thay vì cài đặt trực tiếp Cloudflare Tunnel trên Ubuntu, hệ thống sẽ chạy Tunnel dưới dạng một Docker Container.
+Cách này giúp:
+
+* Đồng bộ toàn bộ hệ thống bằng Docker
+* Dễ backup và deploy
+* Tự khởi động cùng các service khác
+* Dễ quản lý bằng Docker Compose
+
+---
+
+# Thêm Service Cloudflared
+
+Mở file:
 
 ```bash
-# Download cloudflared
-curl -L --output cloudflared.deb https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb
-
-# Cài đặt
-sudo dpkg -i cloudflared.deb
-
-# Kiểm tra
-cloudflared --version
+docker-compose.yml
 ```
 
-### **8.2: Đăng Nhập Cloudflare**
+Thêm đoạn sau vào phần `services:`:
+
+```yml
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: camdo_cloudflared
+    command: tunnel --no-autoupdate run --token ${CLOUDFLARE_TOKEN}
+    restart: unless-stopped
+    depends_on:
+      - django
+    networks:
+      - camdo_net
+```
+---
+
+# Thêm Token Cloudflare
+
+Mở file:
 
 ```bash
-cloudflared tunnel login
+.env
 ```
 
-Lệnh này sẽ:
-1. Mở trình duyệt → Cloudflare login
-2. Chọn domain của bạn
-3. Tạo certificate tự động trong `~/.cloudflared/`
+Thêm:
 
-### **8.3: Tạo Tunnel**
+```env
+CLOUDFLARE_TOKEN=eyJhIjoi...
+```
+---
+
+# 8.3. Lấy Tunnel Token Trên Cloudflare
+
+## Bước 1: Truy cập Cloudflare Zero Trust
+
+Đăng nhập Cloudflare:
+
+```text
+https://dash.cloudflare.com/
+```
+
+Vào:
+
+```text
+Zero Trust
+→ Networks
+→ Tunnels
+```
+
+---
+
+## Bước 2: Tạo Tunnel
+
+Chọn:
+
+```text
+Create a Tunnel
+```
+
+Đặt tên:
+
+```text
+wordpress-tunnel
+```
+
+
+---
+
+## Bước 3: Chọn Docker
+
+Cloudflare sẽ hiện lệnh dạng:
 
 ```bash
-# Tạo tunnel mới
-cloudflared tunnel create wordpress-tunnel
+docker run cloudflare/cloudflared:latest tunnel --no-autoupdate run --token xxxxx
 ```
 
-Output:
-```
-Tunnel credentials written to ~/.cloudflared/xxxxxxx.json
-Tunnel wordpress-tunnel created successfully.
+Copy phần:
+
+```text
+xxxxx
 ```
 
-### **8.4: Cấu Hình Tunnel (file config)**
+đó chính là:
 
-Tạo file cấu hình:
+```env
+CLOUDFLARE_TOKEN
+```
+<img width="1877" height="981" alt="image" src="https://github.com/user-attachments/assets/4dff7fae-13fa-449a-8e01-e2c18d8f3382" />
+
+
+---
+
+# 8.4. Khởi Động Hệ Thống
+
+Build và chạy toàn bộ container:
 
 ```bash
-# Tạo file config (nếu chưa có)
-nano ~/.cloudflared/config.yml
+docker compose up -d --build
 ```
 
-Paste nội dung:
+---
 
-```yaml
-tunnel: wordpress-tunnel
-credentials-file: ~/.cloudflared/<TUNNEL_ID>.json
+# 8.5. Tạo Public Hostname
 
-ingress:
-  - hostname: wordpress.<your-domain.com>
-    service: http://localhost:80
-  - service: http_status:404
+Vào:
+
+```text
+Cloudflare Zero Trust
+→ Networks
+→ Tunnels
+→ Chọn Tunnel
+→ Public Hostname
 ```
 
-**Thay thế:**
-- `wordpress.<your-domain.com>` → subdomain của bạn (ví dụ: `wordpress.example.com`)
-- `<TUNNEL_ID>` → ID tunnel từ file json
+Chọn:
 
-### **8.5: Chạy Tunnel**
-
-```bash
-# Chạy tunnel
-cloudflared tunnel run wordpress-tunnel
+```text
+Add a public hostname
 ```
 
-Hoặc chạy ở background:
+Điền:
 
-```bash
-nohup cloudflared tunnel run wordpress-tunnel > cloudflare.log 2>&1 &
-```
+| Field     | Value             |
+| --------- | ----------------- |
+| Subdomain | camdo             |
+| Domain    | nhukhiem.id.vn    |
+| Type      | HTTP              |
+| URL       | http://wordpress:80   |
 
-### **8.6: Cập Nhật DNS trên Cloudflare**
+<img width="1891" height="974" alt="image" src="https://github.com/user-attachments/assets/5e7c4aa6-2a02-4ef8-a181-ed4d6ebdef66" />
 
-1. Vào **Cloudflare Dashboard**
-2. Chọn domain của bạn
-3. **DNS** → **Records**
-4. Thêm CNAME record:
-   - **Type**: CNAME
-   - **Name**: `wordpress` (hoặc subdomain tùy chọn)
-   - **Target**: `wordpress-tunnel.cfargotunnel.com`
-   - **Proxy status**: Proxied (nút cam)
+
+---
 
 ### **8.7: Test Truy Cập**
+#### Bài viết 1 : Giới thiệu bản thân 
 
-```bash
-# Kiểm tra tunnel status
-cloudflared tunnel info wordpress-tunnel
+<img width="1899" height="1010" alt="image" src="https://github.com/user-attachments/assets/d85d778a-34c0-42dc-8d85-bd7204340d77" />
 
-# Hoặc vào: https://wordpress.<your-domain.com>
-```
+#### Bài viết 2 : Giới thiệu ngành học
 
-✅ **Website của bạn đã online!**
+<img width="1864" height="991" alt="image" src="https://github.com/user-attachments/assets/5c436474-8e50-4bd0-b910-e3958a010361" />
 
 ---
 
@@ -525,15 +601,6 @@ Nếu gặp vấn đề:
 2. Xem logs: `docker compose logs -f`
 3. Tìm kiếm trên Google/Stack Overflow
 4. Hỏi giảng viên hoặc nhóm
-
----
-
-## 📄 License
-
-Dự án này tạo cho mục đích học tập - Bài tập môn TEE0421
-
-**Ngày tạo**: 2026-05-11  
-**Hạn chót**: 2026-05-12 23:59
 
 ---
 
