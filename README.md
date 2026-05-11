@@ -23,15 +23,13 @@ Tất cả dữ liệu được lưu trữ persistent trong thư mục `volumes/
 
 Trước khi bắt đầu, đảm bảo bạn đã cài đặt:
 
-- **Docker** (phiên bản 20.10+)
-- **Docker Compose** (phiên bản 1.29+)
+- **Docker** (phiên bản 29.4.0)
 - **Ubuntu** (Ubuntu 24.04.4 LTS)
 - **Cloudflare** (để public website)
 
 ### Kiểm tra phiên bản:
 ```bash
 docker --version
-docker compose --version
 ```
 
 ### Nếu chưa cài, cài đặt Docker trên Ubuntu:
@@ -120,13 +118,8 @@ chmod -R 755 volumes/
 # Chạy tất cả services ở background
 docker compose up -d
 ```
+<img width="1172" height="253" alt="image" src="https://github.com/user-attachments/assets/8f48157a-5fd1-4916-ad52-2e23424a2707" />
 
-**Output:**
-```
-Creating wordpress_mariadb ... done
-Creating wordpress_phpmyadmin ... done
-Creating wordpress_app ... done
-```
 
 ### **BƯỚC 5: Kiểm tra các services**
 
@@ -138,13 +131,7 @@ docker compose ps
 docker compose logs -f wordpress
 ```
 
-**Output mong đợi:**
-```
-NAME                    STATUS              PORTS
-wordpress_mariadb       Up (healthy)        3306->3306
-wordpress_phpmyadmin    Up                  8081->80
-wordpress_app           Up                  80->80
-```
+<img width="1589" height="238" alt="image" src="https://github.com/user-attachments/assets/15144c05-946d-4032-b435-42970bd40a40" />
 
 ---
 
@@ -152,29 +139,45 @@ wordpress_app           Up                  80->80
 
 | Dịch vụ | URL | Tài khoản | Mật khẩu |
 |---------|-----|----------|---------|
-| **WordPress** | `http://localhost` | Sẽ cài ở bước 6 | Sẽ cài ở bước 6 |
-| **phpMyAdmin** | `http://localhost:8081` | `wordpress_user` | `wordpress_password_456` |
+| **WordPress** | `http://http://192.168.100.2:8080` | Sẽ cài ở bước 6 | Sẽ cài ở bước 6 |
+| **phpMyAdmin** | `http://192.168.100.2:8083` | `username` | `pass` |
 | **MySQL Root** | MySQL CLI | `root` | `root_password_123` |
+
+### Trang WordPress
+<img width="1867" height="982" alt="image" src="https://github.com/user-attachments/assets/271bc73c-788d-4b35-b701-53749255399d" />  
+
+### Trang phpMyAdmin
+<img width="1867" height="999" alt="image" src="https://github.com/user-attachments/assets/b14a4790-22e4-4ca8-b3a2-cd8a9fcf8683" />
 
 ---
 
 ## 📝 BƯỚC 6: Cài Đặt WordPress
 
-1. Mở trình duyệt, truy cập: **http://localhost**
+1. Mở trình duyệt, truy cập: **http://192.168.100.2:8080**
 
 2. Chọn ngôn ngữ → Tiếp theo
+
+<img width="1867" height="982" alt="image" src="https://github.com/user-attachments/assets/271bc73c-788d-4b35-b701-53749255399d" />
 
 3. Điền thông tin:
    - **Site Title**: Tên website của bạn
    - **Username**: Tên user admin (ví dụ: `admin`)
    - **Password**: Mật khẩu mạnh
    - **Email**: Email của bạn
+   - 
+<img width="1874" height="970" alt="image" src="https://github.com/user-attachments/assets/f92070a6-ae42-4f37-8758-9c1d3ea3a537" /> 
 
 4. Nhấp **Install WordPress**
 
+<img width="1875" height="981" alt="image" src="https://github.com/user-attachments/assets/86f6b14f-8ab8-47df-a9ad-9b5ab25da83b" />
+
 5. Đăng nhập vào WordPress với user vừa tạo
 
+<img width="1876" height="988" alt="image" src="https://github.com/user-attachments/assets/cf1b004d-c680-42e7-bfd3-6d96a9f5838f" />
+
 ✅ **Xong!** WordPress đã sẵn sàng
+
+<img width="1886" height="989" alt="image" src="https://github.com/user-attachments/assets/609fe29f-3ea3-44b1-887d-45b41e816f32" />
 
 ---
 
@@ -184,8 +187,11 @@ wordpress_app           Up                  80->80
 
 1. Đăng nhập WordPress
 2. **Dashboard** → **Posts** → **Add New**
-3. Tiêu đề: `Giới Thiệu Bản Thân`
-4. Nội dung:
+3. 
+<img width="1882" height="995" alt="image" src="https://github.com/user-attachments/assets/a1007b4c-07eb-4e04-a891-652d84f87d49" />
+
+4. Tiêu đề: `Giới Thiệu Bản Thân`
+5. Nội dung:
    - Thông tin cá nhân (Họ tên, Ngày sinh, MSSV, ...)
    - Sở thích, mục tiêu
    - Kỹ năng
@@ -193,7 +199,7 @@ wordpress_app           Up                  80->80
    - Thêm **video** (YouTube embed hoặc upload)
    - Thêm **audio** (nếu có)
 
-5. Nhấp **Publish**
+6. Nhấp **Publish**
 
 ### **Bài Viết #2: Giới Thiệu Ngành Học**
 
