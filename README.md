@@ -256,13 +256,15 @@ Thêm đoạn sau vào phần `services:`:
 ```yml
   cloudflared:
     image: cloudflare/cloudflared:latest
-    container_name: camdo_cloudflared
-    command: tunnel --no-autoupdate run --token ${CLOUDFLARE_TOKEN}
-    restart: unless-stopped
-    depends_on:
-      - django
+    container_name: wordpress_cloudflared
+    restart: always
+    command: tunnel --no-autoupdate run
+    environment:
+      - TUNNEL_TOKEN=${CLOUDFLARED_TUNNEL_TOKEN}
     networks:
-      - camdo_net
+      - wordpress_network
+    depends_on:
+      - wordpress    
 ```
 ---
 
