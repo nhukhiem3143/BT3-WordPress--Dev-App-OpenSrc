@@ -344,7 +344,7 @@ CLOUDFLARE_TOKEN
 
 ---
 
-# 8.4. Khởi Động Hệ Thống
+# Khởi Động Hệ Thống
 
 Build và chạy toàn bộ container:
 
@@ -354,7 +354,7 @@ docker compose up -d --build
 
 ---
 
-# 8.5. Tạo Public Hostname
+# Tạo Public Hostname
 
 Vào:
 
@@ -386,7 +386,7 @@ Add a public hostname
 
 ---
 
-### **8.7: Test Truy Cập**
+### **Test Truy Cập**
 #### Bài viết 1 : Giới thiệu bản thân 
 
 <img width="1899" height="1010" alt="image" src="https://github.com/user-attachments/assets/d85d778a-34c0-42dc-8d85-bd7204340d77" />
